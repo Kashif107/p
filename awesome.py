@@ -361,3 +361,55 @@ grid on;
 % ===============================================================
 disp('--- All histogram binning examples executed successfully ---');
 %---------------------------------------
+% processData.m
+% Read audio and image files and store features in CSV
+
+% --------- AUDIO DATASET ----------
+audioFolder = 'audio_dataset'; % create this folder and add .wav files
+audioFiles = dir(fullfile(audioFolder, '*.wav'));
+
+audioFeatures = [];
+
+for i = 1:length(audioFiles)
+    filePath = fullfile(audioFolder, audioFiles(i).name);
+    [y, fs] = audioread(filePath);
+    
+    % Example features
+    duration = length(y) / fs;
+    avgAmplitude = mean(abs(y));
+    rmsValue = rms(y);
+    
+    audioFeatures = [audioFeatures; duration, avgAmplitude, rmsValue];
+end
+
+audioTable = array2table(audioFeatures, ...
+    'VariableNames', {'Duration_sec', 'Mean_Amplitude', 'RMS'});
+writetable(audioTable, 'audio_features.csv');
+disp('Audio features saved to audio_features.csv');
+
+% --------- IMAGE DATASET ----------
+imageFolder = 'image_dataset'; % create this folder and add .jpg/.png files
+imageFiles = dir(fullfile(imageFolder, '*.jpg'));
+
+imageFeatures = [];
+
+for i = 1:length(imageFiles)
+    imgPath = fullfile(imageFolder, imageFiles(i).name);
+    img = imread(imgPath);
+    
+    % Convert to grayscale for simple features
+    gray = rgb2gray(img);
+    
+    % Example features
+    [rows, cols] = size(gray);
+    meanVal = mean2(gray);
+    stdVal = std2(gray);
+    
+    imageFeatures = [imageFeatures; rows, cols, meanVal, stdVal];
+end
+
+imageTable = array2table(imageFeatures, ...
+    'VariableNames', {'Rows', 'Cols', 'Mean_Intensity', 'Std_Deviation'});
+writetable(imageTable, 'image_features.csv');
+disp('Image features saved to image_features.csv');
+
